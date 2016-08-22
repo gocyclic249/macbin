@@ -4,27 +4,26 @@
 
 #Downloaded from S1mpleman at https://forums.plex.tv/discussion/177354/bash-script-download-youtube-content-ready-for-plex
 
-YOUTUBEOUT="$HOME/Media/Youtube/"
-CDDIR="$HOME/Media/Youtube/"
-ARCHIVEFILE="$HOME/Media/Youtube/Logs/"
+echo "Input series name"
 
-while getopts ":u:" opt; do
-        youtube-dl -o "${YOUTUBEOUT}%(playlist)s/%(playlist)s-%(upload_date)s-%(title)s.%(ext)s" --write-all-thumbnails --write-description --download-archive "${ARCHIVEFILE}/%(playlist)s" --add-metadata --ignore-errors -a "$ARCHIVEFILE/urls"  
-        fixname
-        exit 0
-done
+read rseries
+
+series=$(echo "$rseries" | tr " " "_")
 
 echo "Input URL"
 
 read PLAYLIST
 
-echo "$PLAYLIST" >> $ARCHIVEFILE/urls
+
+mkdir -p "$HOME/Media/Youtube/$series"
+YOUTUBEOUT="$HOME/Media/Youtube/$series/$series-"
+CDDIR="$HOME/Media/Youtube/$series"
+ARCHIVEFILE="$HOME/Media/Youtube/Logs/$series.txt"
 
 ##Download new videos
-youtube-dl -o "${YOUTUBEOUT}%(playlist)s/%(playlist)s-%(upload_date)s-%(title)s.%(ext)s" --write-all-thumbnails --write-description --download-archive "${ARCHIVEFILE}/%(playlist)s" --add-metadata --ignore-errors ${PLAYLIST} 
-fixname
+youtube-dl -o "${YOUTUBEOUT}%(upload_date)s-%(title)s.%(ext)s" --write-all-thumbnails --write-description --download-archive ${ARCHIVEFILE} --add-metadata --ignore-errors ${PLAYLIST} 
 
-fixname(){
+
 ##CD to correct directory##
 cd "${CDDIR}"
 
@@ -32,7 +31,6 @@ cd "${CDDIR}"
 rename 's/\.description$/\.summary/' *.description
 
 ## Rename the YYYYMMDD to YYYY-MM-DD files... 
-rename -v 's/(\d{4})(\d{2})(\d{2})/$1-$2-$3/' **
+rename -v 's/(\d{4})(\d{2})(\d{2})/$1-$2-$3/' *
 
-rename "s/ /_/g" **
-}
+rename "s/ /_/g" *

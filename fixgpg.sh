@@ -17,14 +17,11 @@ while [ 1 -ne $code ]; do
         done
 
         echo "restart gpg-agent"
-        eval $(gpg-agent --daemon)
-
-        echo
-if [ -f "${HOME}/.gpg-agent-info" ]; then
-  . "${HOME}/.gpg-agent-info"
-  export GPG_AGENT_INFO
-  export SSH_AUTH_SOCK
-  export SSH_AGENT_PID
-fi
+[ -f ~/.gpg-agent-info ] && source ~/.gpg-agent-info
+if [ -S "${GPG_AGENT_INFO%%:*}" ]; then
+          export GPG_AGENT_INFO
+  else
+            eval $( gpg-agent --daemon --write-env-file ~/.gpg-agent-info )
+    fi
         echo "All done. Now unplug / replug the NEO token."
         echo
